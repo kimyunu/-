@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YoonCar 보안 대시보드</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #ffffff;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #00a2ff, #0078d4);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .title-section h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .title-section p {
+            font-size: 14px;
+            color: #8b949e;
+            margin-top: 2px;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .user-role {
+            font-size: 13px;
+            color: #00a2ff;
+        }
+
+        .user-dept {
+            font-size: 12px;
+            color: #8b949e;
+        }
+
+        .logout-btn {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid rgba(220, 53, 69, 0.5);
+            color: #ff6b6b;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(220, 53, 69, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(0, 162, 255, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .security-icon {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .activity-icon {
+            background: linear-gradient(135deg, #007bff, #6610f2);
+        }
+
+        .access-icon {
+            background: linear-gradient(135deg, #fd7e14, #e83e8c);
+        }
+
+        .system-icon {
+            background: linear-gradient(135deg, #6f42c1, #e83e8c);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+
+        .card-subtitle {
+            font-size: 14px;
+            color: #8b949e;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            font-size: 14px;
+            color: #8b949e;
+        }
+
+        .status-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .status-good {
+            color: #28a745 !important;
+        }
+
+        .status-warning {
+            color: #ffc107 !important;
+        }
+
+        .status-danger {
+            color: #dc3545 !important;
+        }
+
+        .recent-activity {
+            grid-column: 1 / -1;
+        }
+
+        .activity-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-time {
+            font-size: 12px;
+            color: #8b949e;
+            min-width: 120px;
+        }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-desc {
+            font-size: 14px;
+            color: #ffffff;
+            margin-bottom: 2px;
+        }
+
+        .activity-ip {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .activity-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-left: auto;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #00a2ff, #0078d4);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 162, 255, 0.3);
+        }
+
+        .action-btn.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .admin-only {
+            display: none;
+        }
+
+        .security-alert {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .alert-icon {
+            font-size: 24px;
+            color: #ffc107;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffc107;
+            margin-bottom: 5px;
+        }
+
+        .alert-desc {
+            font-size: 14px;
+            color: #ffffff;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .user-section {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-actions {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo">YC</div>
+                <div class="title-section">
+                    <h1>보안 대시보드</h1>
+                    <p>YoonCar Enterprise Security System</p>
+                </div>
+            </div>
+            <div class="user-section">
+                <div class="user-info">
+                    <div class="user-name">{{ user.username }}</div>
+                    <div class="user-role">레벨 {{ user.access_level }} 사용자</div>
+                    <div class="user-dept">{{ user.department }}</div>
+                </div>
+                <a href="/logout" class="logout-btn">로그아웃</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        {% if user.access_level >= 7 %}
+        <div class="security-alert">
+            <div class="alert-icon">🔒</div>
+            <div class="alert-content">
+                <div class="alert-title">높은 권한 계정 알림</div>
+                <div class="alert-desc">귀하는 관리자 권한을 보유하고 있습니다. 모든 활동이 특별히 모니터링됩니다.</div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon security-icon">🛡️</div>
+                    <div>
+                        <div class="card-title">보안 상태</div>
+                        <div class="card-subtitle">시스템 보안 현황</div>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">계정 상태</span>
+                    <span class="status-value status-good">정상</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">2단계 인증</span>
+                    <span class="status-value {% if user.totp_secret %}status-good{% else %}status-warning{% endif %}">
+                        {% if user.totp_secret %}활성화{% else %}비활성화{% endif %}
+                    </span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">접근 권한</span>
+                    <span class="status-value">레벨 {{ user.access_level }}</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">세션 만료</span>
+                    <span class="status-value" id="sessionTime">계산 중...</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon activity-icon">📊</div>
+                    <div>
+                        <div class="card-title">접속 통계</div>
+                        <div class="card-subtitle">최근 활동 요약</div>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">오늘 로그인</span>
+                    <span class="status-value">{{ recent_logins|length }}회</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">마지막 접속</span>
+                    <span class="status-value">
+                        {% if recent_logins %}
+                            {{ recent_logins[0][0][:16] }}
+                        {% else %}
+                            기록 없음
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">실패한 시도</span>
+                    <span class="status-value status-warning">
+                        {{ recent_logins|selectattr(2, 'equalto', false)|list|length }}회
+                    </span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">보안 점수</span>
+                    <span class="status-value status-good">92/100</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon access-icon">🔑</div>
+                    <div>
+                        <div class="card-title">접근 권한</div>
+                        <div class="card-subtitle">사용 가능한 기능</div>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">대시보드</span>
+                    <span class="status-value status-good">✓ 허용</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">파일 시스템</span>
+                    <span class="status-value {% if user.access_level >= 3 %}status-good{% else %}status-danger{% endif %}">
+                        {% if user.access_level >= 3 %}✓ 허용{% else %}✗ 제한{% endif %}
+                    </span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">관리자 패널</span>
+                    <span class="status-value {% if user.access_level >= 9 %}status-good{% else %}status-danger{% endif %}">
+                        {% if user.access_level >= 9 %}✓ 허용{% else %}✗ 제한{% endif %}
+                    </span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">보안 로그</span>
+                    <span class="status-value {% if user.access_level >= 5 %}status-good{% else %}status-danger{% endif %}">
+                        {% if user.access_level >= 5 %}✓ 허용{% else %}✗ 제한{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon system-icon">💻</div>
+                    <div>
+                        <div class="card-title">시스템 정보</div>
+                        <div class="card-subtitle">현재 세션 정보</div>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">접속 IP</span>
+                    <span class="status-value" id="currentIP">확인 중...</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">브라우저</span>
+                    <span class="status-value" id="browserInfo">확인 중...</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">암호화</span>
+                    <span class="status-value status-good">TLS 1.3</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">서버 시간</span>
+                    <span class="status-value" id="serverTime">로딩 중...</span>
+                </div>
+            </div>
+
+            <div class="card recent-activity">
+                <div class="card-header">
+                    <div class="card-icon activity-icon">📋</div>
+                    <div>
+                        <div class="card-title">최근 로그인 기록</div>
+                        <div class="card-subtitle">최근 5회 접속 기록</div>
+                    </div>
+                </div>
+                <div class="activity-list">
+                    {% for login in recent_logins %}
+                    <div class="activity-item">
+                        <div class="activity-time">{{ login[0][:16] }}</div>
+                        <div class="activity-details">
+                            <div class="activity-desc">
+                                {% if login[2] %}
+                                    ✅ 로그인 성공
+                                {% else %}
+                                    ❌ 로그인 실패
+                                {% endif %}
+                            </div>
+                            <div class="activity-ip">IP: {{ login[1] }}</div>
+                        </div>
+                        <div class="activity-status" style="background-color: {% if login[2] %}#28a745{% else %}#dc3545{% endif %};"></div>
+                    </div>
+                    {% endfor %}
+                    {% if not recent_logins %}
+                    <div class="activity-item">
+                        <div class="activity-details">
+                            <div class="activity-desc">로그인 기록이 없습니다.</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            {% if not user.totp_secret %}
+            <a href="/setup-2fa" class="action-btn">
+                🔒 2단계 인증 설정
+            </a>
+            {% endif %}
+            
+            {% if user.access_level >= 9 %}
+            <a href="/admin" class="action-btn">
+                👤 관리자 패널
+            </a>
+            {% endif %}
+            
+            <a href="#" class="action-btn secondary" onclick="refreshDashboard()">
+                🔄 새로고침
+            </a>
+            
+            <a href="#" class="action-btn secondary" onclick="downloadSecurityReport()">
+                📊 보안 리포트
+            </a>
+        </div>
+    </main>
+
+    <script>
+        // 실시간 시간 업데이트
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('serverTime').textContent = now.toLocaleString('ko-KR');
+        }
+        
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // 세션 만료 시간 계산
+        function updateSessionTime() {
+            const sessionStart = new Date();
+            const sessionEnd = new Date(sessionStart.getTime() + (8 * 60 * 60 * 1000)); // 8시간
+            const now = new Date();
+            const remaining = sessionEnd - now;
+            
+            if (remaining > 0) {
+                const hours = Math.floor(remaining / (1000 * 60 * 60));
+                const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                document.getElementById('sessionTime').textContent = `${hours}시간 ${minutes}분`;
+            } else {
+                document.getElementById('sessionTime').textContent = '만료됨';
+            }
+        }
+        
+        setInterval(updateSessionTime, 60000);
+        updateSessionTime();
+
+        // IP 주소 표시
+        fetch('https://api.ipify.org?format=json')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('currentIP').textContent = data.ip;
+            })
+            .catch(() => {
+                document.getElementById('currentIP').textContent = '보안상 숨김';
+            });
+
+        // 브라우저 정보
+        function getBrowserInfo() {
+            const ua = navigator.userAgent;
+            let browser = 'Unknown';
+            
+            if (ua.includes('Chrome')) browser = 'Chrome';
+            else if (ua.includes('Firefox')) browser = 'Firefox';
+            else if (ua.includes('Safari')) browser = 'Safari';
+            else if (ua.includes('Edge')) browser = 'Edge';
+            
+            return browser;
+        }
+        
+        document.getElementById('browserInfo').textContent = getBrowserInfo();
+
+        // 대시보드 새로고침
+        function refreshDashboard() {
+            location.reload();
+        }
+
+        // 보안 리포트 다운로드
+        function downloadSecurityReport() {
+            alert('보안 리포트 생성 기능은 현재 개발 중입니다.');
+        }
+
+        // 보안 모니터링
+        let inactivityTimer;
+        
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(() => {
+                if (confirm('15분간 비활성 상태입니다. 보안을 위해 로그아웃하시겠습니까?')) {
+                    window.location.href = '/logout';
+                }
+            }, 15 * 60 * 1000); // 15분
+        }
+
+        // 사용자 활동 감지
+        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+            document.addEventListener(event, resetInactivityTimer, true);
+        });
+
+        resetInactivityTimer();
+
+        // 페이지 가시성 변경 감지
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                console.log('보안 로그: 페이지가 백그라운드로 전환됨');
+            } else {
+                console.log('보안 로그: 페이지가 포그라운드로 전환됨');
+                resetInactivityTimer();
+            }
+        });
+
+        // 보안 로그
+        console.clear();
+        console.log('%c🔒 YoonCar 보안 대시보드', 'color: #00a2ff; font-size: 20px; font-weight: bold;');
+        console.log('%c사용자: {{ user.username }} | 권한: 레벨 {{ user.access_level }}', 'color: #28a745; font-size: 12px;');
+        console.log('%c모든 활동이 모니터링되고 기록됩니다.', 'color: #ffc107; font-size: 11px;');
+    </script>
+</body>
+</html>

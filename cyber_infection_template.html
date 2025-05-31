@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YoonCar Enterprise Security Gateway</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Normal Login Page Styles */
+        .login-container {
+            position: relative;
+            z-index: 1;
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .company-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #00a2ff, #0078d4);
+            border-radius: 12px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .security-title {
+            text-align: center;
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .security-subtitle {
+            text-align: center;
+            color: #8b949e;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        .form-input::placeholder {
+            color: #6b7280;
+        }
+
+        .login-button {
+            width: 100%;
+            background: linear-gradient(135deg, #00a2ff, #0078d4);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .dark-admin-trigger {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 8px;
+            color: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* Virus Mode Styles */
+        .virus-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .virus-active {
+            background: #000 !important;
+            cursor: none !important;
+        }
+
+        .glitch-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #ff0000, #000000, #ff0000);
+            animation: glitchBg 0.1s infinite;
+        }
+
+        @keyframes glitchBg {
+            0% { background-position: 0% 0%; filter: hue-rotate(0deg); }
+            25% { background-position: 100% 0%; filter: hue-rotate(90deg); }
+            50% { background-position: 100% 100%; filter: hue-rotate(180deg); }
+            75% { background-position: 0% 100%; filter: hue-rotate(270deg); }
+            100% { background-position: 0% 0%; filter: hue-rotate(360deg); }
+        }
+
+        .skull-warning {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #ff0000;
+            font-size: 120px;
+            animation: pulse 0.5s infinite, shake 0.1s infinite;
+            text-shadow: 0 0 20px #ff0000;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translate(-50%, -50%) translateX(0); }
+            25% { transform: translate(-50%, -50%) translateX(-5px); }
+            75% { transform: translate(-50%, -50%) translateX(5px); }
+        }
+
+        .warning-text {
+            position: absolute;
+            top: 70%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ff0000;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            animation: flash 0.3s infinite;
+            text-shadow: 0 0 10px #ff0000;
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .fake-terminal {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            padding: 10px;
+            overflow-y: scroll;
+            border-top: 1px solid #00ff00;
+        }
+
+        .recovery-panel {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #ff0000;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            color: #ffffff;
+            min-width: 400px;
+        }
+
+        .recovery-input {
+            width: 100%;
+            padding: 15px;
+            margin: 20px 0;
+            background: #333;
+            border: 2px solid #ff0000;
+            color: #ffffff;
+            font-size: 18px;
+            text-align: center;
+            border-radius: 5px;
+        }
+
+        .recovery-button {
+            background: #ff0000;
+            color: #ffffff;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 10px;
+        }
+
+        .recovery-button:hover {
+            background: #cc0000;
+        }
+
+        /* Success Page Styles */
+        .success-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #0c5c0c, #1a4a1a);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .success-icon {
+            font-size: 120px;
+            color: #00ff00;
+            margin-bottom: 30px;
+            animation: successPulse 2s infinite;
+        }
+
+        @keyframes successPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .success-title {
+            color: #00ff00;
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .success-message {
+            color: #ffffff;
+            font-size: 18px;
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .restart-button {
+            margin-top: 30px;
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .glitch-text {
+            animation: glitch 0.3s infinite;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        .scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(transparent 50%, rgba(0, 255, 0, 0.03) 50%),
+                         linear-gradient(90deg, transparent 50%, rgba(255, 0, 0, 0.03) 50%);
+            background-size: 2px 2px;
+            pointer-events: none;
+            animation: scanlines 0.1s linear infinite;
+        }
+
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(2px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Normal Login Interface -->
+    <div class="login-container" id="loginContainer">
+        <div class="company-logo">YC</div>
+        <h1 class="security-title">보안 접속 게이트웨이</h1>
+        <p class="security-subtitle">YoonCar Enterprise Security System</p>
+        
+        <div class="form-group">
+            <input type="text" class="form-input" placeholder="사용자 ID" required>
+        </div>
+        
+        <div class="form-group">
+            <input type="password" class="form-input" placeholder="비밀번호" required>
+        </div>
+        
+        <button class="login-button">보안 로그인</button>
+        
+        <div class="dark-admin-trigger" onclick="activateDarkAdmin()">/dark_admin</div>
+        
+        <div style="margin-top: 20px; text-align: center; color: #8b949e; font-size: 12px;">
+            현재 사용자: {{ user.username }} | 권한: 레벨 {{ user.access_level }}
+        </div>
+    </div>
+
+    <!-- Virus Mode Interface -->
+    <div class="virus-container" id="virusContainer">
+        <div class="glitch-screen"></div>
+        <div class="scanlines"></div>
+        
+        <div class="skull-warning">☠️</div>
+        
+        <div class="warning-text glitch-text">
+            SYSTEM COMPROMISED<br>
+            보안 침해 감지됨<br>
+            ALL FILES ENCRYPTED
+        </div>
+        
+        <div class="fake-terminal" id="fakeTerminal"></div>
+        
+        <div class="recovery-panel" id="recoveryPanel">
+            <h2 style="color: #ff0000; margin-bottom: 20px;">🔒 시스템 복구</h2>
+            <p style="margin-bottom: 20px;">시스템이 악성코드에 감염되었습니다.<br>복구 코드를 입력하여 시스템을 복구하세요.</p>
+            <input type="text" class="recovery-input" id="recoveryCode" placeholder="복구 코드 입력 (8자리)" maxlength="8">
+            <br>
+            <button class="recovery-button" onclick="attemptRecovery()">복구 시도</button>
+            <button class="recovery-button" onclick="returnToDashboard()" style="background: #666;">대시보드로</button>
+            <div id="recoveryMessage" style="margin-top: 15px; color: #ff6666;"></div>
+        </div>
+    </div>
+
+    <!-- Success Page -->
+    <div class="success-container" id="successContainer">
+        <div class="success-icon">✅</div>
+        <h1 class="success-title">시스템 복구 완료</h1>
+        <div class="success-message">
+            축하합니다! 악성코드가 성공적으로 제거되었습니다.<br>
+            모든 시스템이 정상 상태로 복구되었습니다.<br><br>
+            <strong>복구 세부사항:</strong><br>
+            - 감염된 파일: 1,247개 복구 완료<br>
+            - 암호화된 데이터: 100% 복원<br>
+            - 보안 패치: 자동 적용 완료<br>
+            - 시스템 무결성: 검증 완료<br><br>
+            <em>사용자: {{ user.username }} | 복구 시간: <span id="recoveryTime"></span></em>
+        </div>
+        <button class="restart-button" onclick="returnToDashboard()">대시보드로 돌아가기</button>
+    </div>
+
+    <audio id="warningSound" loop>
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmEcBj6Y2+7GciAFJIHO8+CJOAYXZrnr3ZdHEQo=" type="audio/wav">
+    </audio>
+
+    <script>
+        let terminalLines = [];
+        let isVirusActive = false;
+        let recoveryAttempts = 0;
+        const correctRecoveryCode = "19721121";
+
+        // Fake terminal log messages
+        const logMessages = [
+            "[ERROR] System32\\kernel.exe - Access Denied",
+            "[WARN] Registry corruption detected",
+            "[CRIT] Boot sector infected",
+            "[ERROR] Network adapter compromised", 
+            "[WARN] Firewall disabled by external process",
+            "[CRIT] Encryption process initiated",
+            "[ERROR] User data inaccessible",
+            "[WARN] Backup systems offline",
+            "[CRIT] Administrative privileges escalated",
+            "[ERROR] Security protocols bypassed",
+            "[WARN] Malicious payload deployed",
+            "[CRIT] System integrity compromised",
+            "[ERROR] File system corruption detected",
+            "[WARN] Network traffic intercepted",
+            "[CRIT] Rootkit installation confirmed",
+            "[ERROR] Anti-virus software disabled",
+            "[WARN] Keylogger activity detected",
+            "[CRIT] Remote access established",
+            "[ERROR] Password database breached",
+            "[WARN] System performance degraded"
+        ];
+
+        // 페이지 로드 시 자동 시작
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                startVirusMode();
+            }, 2000); // 2초 후 자동 시작
+        });
+
+        function activateDarkAdmin() {
+            // Show warning and start countdown
+            if (!confirm("경고: 이 기능은 시스템 보안을 위험에 빠뜨릴 수 있습니다. 계속하시겠습니까?")) {
+                return;
+            }
+
+            document.body.style.cursor = 'wait';
+            
+            setTimeout(() => {
+                startVirusMode();
+            }, 3000);
+        }
+
+        function startVirusMode() {
+            isVirusActive = true;
+            document.body.classList.add('virus-active');
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('virusContainer').style.display = 'block';
+
+            // Try to enter fullscreen
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            }
+
+            // Play warning sound
+            const audio = document.getElementById('warningSound');
+            audio.volume = 0.3;
+            audio.play().catch(() => {});
+
+            // Disable right-click and selection
+            document.addEventListener('contextmenu', preventAction);
+            document.addEventListener('selectstart', preventAction);
+            
+            // Start fake terminal logging
+            startFakeLogging();
+            
+            // Show recovery panel after 10 seconds
+            setTimeout(() => {
+                document.getElementById('recoveryPanel').style.display = 'block';
+                audio.pause();
+            }, 10000);
+
+            // Glitch effects
+            setInterval(() => {
+                if (isVirusActive) {
+                    document.body.style.filter = `hue-rotate(${Math.random() * 360}deg) saturate(${Math.random() * 3})`;
+                    setTimeout(() => {
+                        if (isVirusActive) {
+                            document.body.style.filter = '';
+                        }
+                    }, 100);
+                }
+            }, 200);
+        }
+
+        function preventAction(e) {
+            if (isVirusActive) {
+                e.preventDefault();
+                return false;
+            }
+        }
+
+        function startFakeLogging() {
+            const terminal

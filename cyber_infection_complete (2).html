@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YoonCar Enterprise Security Gateway</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Normal Login Page Styles */
+        .login-container {
+            position: relative;
+            z-index: 1;
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .company-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #00a2ff, #0078d4);
+            border-radius: 12px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .security-title {
+            text-align: center;
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .security-subtitle {
+            text-align: center;
+            color: #8b949e;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        .form-input::placeholder {
+            color: #6b7280;
+        }
+
+        .login-button {
+            width: 100%;
+            background: linear-gradient(135deg, #00a2ff, #0078d4);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .dark-admin-trigger {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 8px;
+            color: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* Virus Mode Styles */
+        .virus-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .virus-active {
+            background: #000 !important;
+            cursor: none !important;
+        }
+
+        .glitch-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #ff0000, #000000, #ff0000);
+            animation: glitchBg 0.1s infinite;
+        }
+
+        @keyframes glitchBg {
+            0% { background-position: 0% 0%; filter: hue-rotate(0deg); }
+            25% { background-position: 100% 0%; filter: hue-rotate(90deg); }
+            50% { background-position: 100% 100%; filter: hue-rotate(180deg); }
+            75% { background-position: 0% 100%; filter: hue-rotate(270deg); }
+            100% { background-position: 0% 0%; filter: hue-rotate(360deg); }
+        }
+
+        .skull-warning {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #ff0000;
+            font-size: 120px;
+            animation: pulse 0.5s infinite, shake 0.1s infinite;
+            text-shadow: 0 0 20px #ff0000;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translate(-50%, -50%) translateX(0); }
+            25% { transform: translate(-50%, -50%) translateX(-5px); }
+            75% { transform: translate(-50%, -50%) translateX(5px); }
+        }
+
+        .warning-text {
+            position: absolute;
+            top: 70%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ff0000;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            animation: flash 0.3s infinite;
+            text-shadow: 0 0 10px #ff0000;
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .fake-terminal {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            padding: 10px;
+            overflow-y: scroll;
+            border-top: 1px solid #00ff00;
+        }
+
+        .recovery-panel {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #ff0000;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            color: #ffffff;
+            min-width: 400px;
+        }
+
+        .recovery-input {
+            width: 100%;
+            padding: 15px;
+            margin: 20px 0;
+            background: #333;
+            border: 2px solid #ff0000;
+            color: #ffffff;
+            font-size: 18px;
+            text-align: center;
+            border-radius: 5px;
+        }
+
+        .recovery-button {
+            background: #ff0000;
+            color: #ffffff;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 10px;
+        }
+
+        .recovery-button:hover {
+            background: #cc0000;
+        }
+
+        /* Success Page Styles */
+        .success-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #0c5c0c, #1a4a1a);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .success-icon {
+            font-size: 120px;
+            color: #00ff00;
+            margin-bottom: 30px;
+            animation: successPulse 2s infinite;
+        }
+
+        @keyframes successPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .success-title {
+            color: #00ff00;
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .success-message {
+            color: #ffffff;
+            font-size: 18px;
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .restart-button {
+            margin-top: 30px;
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .glitch-text {
+            animation: glitch 0.3s infinite;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        .scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(transparent 50%, rgba(0, 255, 0, 0.03) 50%),
+                         linear-gradient(90deg, transparent 50%, rgba(255, 0, 0, 0.03) 50%);
+            background-size: 2px 2px;
+            pointer-events: none;
+            animation: scanlines 0.1s linear infinite;
+        }
+
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(2px); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Normal Login Interface -->
+    <div class="login-container" id="loginContainer">
+        <div class="company-logo">YC</div>
+        <h1 class="security-title">보안 접속 게이트웨이</h1>
+        <p class="security-subtitle">YoonCar Enterprise Security System</p>
+        
+        <div class="form-group">
+            <input type="text" class="form-input" placeholder="사용자 ID" required>
+        </div>
+        
+        <div class="form-group">
+            <input type="password" class="form-input" placeholder="비밀번호" required>
+        </div>
+        
+        <button class="login-button">보안 로그인</button>
+        
+        <div class="dark-admin-trigger" onclick="activateDarkAdmin()">/dark_admin</div>
+        
+        <div style="margin-top: 20px; text-align: center; color: #8b949e; font-size: 12px;">
+            현재 사용자: admin | 권한: 레벨 9
+        </div>
+    </div>
+
+    <!-- Virus Mode Interface -->
+    <div class="virus-container" id="virusContainer">
+        <div class="glitch-screen"></div>
+        <div class="scanlines"></div>
+        
+        <div class="skull-warning">☠️</div>
+        
+        <div class="warning-text glitch-text">
+            SYSTEM COMPROMISED<br>
+            보안 침해 감지됨<br>
+            ALL FILES ENCRYPTED
+        </div>
+        
+        <div class="fake-terminal" id="fakeTerminal"></div>
+        
+        <div class="recovery-panel" id="recoveryPanel">
+            <h2 style="color: #ff0000; margin-bottom: 20px;">🔒 시스템 복구</h2>
+            <p style="margin-bottom: 20px;">시스템이 악성코드에 감염되었습니다.<br>복구 코드를 입력하여 시스템을 복구하세요.</p>
+            <input type="text" class="recovery-input" id="recoveryCode" placeholder="복구 코드 입력 (8자리)" maxlength="8">
+            <br>
+            <button class="recovery-button" onclick="attemptRecovery()">복구 시도</button>
+            <button class="recovery-button" onclick="returnToDashboard()" style="background: #666;">대시보드로</button>
+            <div id="recoveryMessage" style="margin-top: 15px; color: #ff6666;"></div>
+        </div>
+    </div>
+
+    <!-- Success Page -->
+    <div class="success-container" id="successContainer">
+        <div class="success-icon">✅</div>
+        <h1 class="success-title">시스템 복구 완료</h1>
+        <div class="success-message">
+            축하합니다! 악성코드가 성공적으로 제거되었습니다.<br>
+            모든 시스템이 정상 상태로 복구되었습니다.<br><br>
+            <strong>복구 세부사항:</strong><br>
+            - 감염된 파일: 1,247개 복구 완료<br>
+            - 암호화된 데이터: 100% 복원<br>
+            - 보안 패치: 자동 적용 완료<br>
+            - 시스템 무결성: 검증 완료<br><br>
+            <em>사용자: admin | 복구 시간: <span id="recoveryTime"></span></em>
+        </div>
+        <button class="restart-button" onclick="returnToDashboard()">대시보드로 돌아가기</button>
+    </div>
+
+    <script>
+        let terminalLines = [];
+        let isVirusActive = false;
+        let recoveryAttempts = 0;
+        const correctRecoveryCode = "19721121";
+
+        // Fake terminal log messages with realistic file paths and onion addresses
+        const logMessages = [
+            "[ERROR] System32\\kernel.exe - Access Denied",
+            "[INFECTED] C:\\YoonCar\\secrets\\global_tracking_key.txt",
+            "[INFECTED] C:\\YoonCar\\database\\customer_private_data.db",
+            "[INFECTED] C:\\Windows\\System32\\explorer.exe - Injected with malicious DLL",
+            "[INFECTED] C:\\YoonCar\\admin\\master_password_list.xlsx",
+            "[WARN] Registry corruption detected",
+            "[CRIT] Boot sector infected",
+            "[INFECTED] C:\\Users\\Administrator\\Documents\\security_protocols.pdf",
+            "[LEAK] HiddenNode Ping Response from http://ycglobal47x8kj2.onion",
+            "[ERROR] Network adapter compromised", 
+            "[INFECTED] C:\\YoonCar\\financial\\bank_account_info.txt",
+            "[WARN] Firewall disabled by external process",
+            "[INFECTED] C:\\Windows\\System32\\winlogon.exe - DLL injection detected",
+            "[CRIT] Encryption process initiated",
+            "[INFECTED] C:\\YoonCar\\hr\\employee_ssn_database.csv",
+            "[ERROR] User data inaccessible",
+            "[LEAK] Data exfiltration to http://darkmarket92kx.onion/upload",
+            "[WARN] Backup systems offline",
+            "[INFECTED] C:\\Program Files\\YoonCar\\config\\api_keys.json",
+            "[CRIT] Administrative privileges escalated",
+            "[INFECTED] C:\\Windows\\System32\\lsass.exe - Memory dump in progress",
+            "[ERROR] Security protocols bypassed",
+            "[LEAK] Command received from http://c2server83hf.onion/cmd",
+            "[WARN] Malicious payload deployed",
+            "[INFECTED] C:\\YoonCar\\legal\\confidential_contracts.zip",
+            "[CRIT] System integrity compromised",
+            "[INFECTED] C:\\Windows\\System32\\svchost.exe - Process hollowing detected",
+            "[ERROR] File system corruption detected",
+            "[INFECTED] C:\\YoonCar\\research\\prototype_blueprints.dwg",
+            "[WARN] Network traffic intercepted",
+            "[LEAK] Stolen credentials uploaded to http://leaksite74x.onion",
+            "[CRIT] Rootkit installation confirmed",
+            "[INFECTED] C:\\Windows\\System32\\taskhost.exe - Backdoor installed",
+            "[ERROR] Anti-virus software disabled",
+            "[INFECTED] C:\\YoonCar\\ceo\\personal_emails_archive.pst",
+            "[WARN] Keylogger activity detected",
+            "[LEAK] Keylog data sent to http://spynet45k8j.onion/logs",
+            "[CRIT] Remote access established",
+            "[INFECTED] C:\\Windows\\System32\\rundll32.exe - Persistence mechanism",
+            "[ERROR] Password database breached",
+            "[INFECTED] C:\\YoonCar\\security\\camera_footage_2024.mp4",
+            "[WARN] System performance degraded",
+            "[LEAK] Screen capture sent to http://surveillan3x7.onion/images"
+        ];
+
+        // 페이지 로드 시 자동 시작
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                startVirusMode();
+            }, 2000); // 2초 후 자동 시작
+        });
+
+        function activateDarkAdmin() {
+            // Show warning and start countdown
+            if (!confirm("경고: 이 기능은 시스템 보안을 위험에 빠뜨릴 수 있습니다. 계속하시겠습니까?")) {
+                return;
+            }
+
+            document.body.style.cursor = 'wait';
+            
+            // Show fake loading message
+            const loadingDiv = document.createElement('div');
+            loadingDiv.style.cssText = `
+                position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                background: rgba(0,0,0,0.9); color: white; padding: 20px;
+                border-radius: 10px; z-index: 10000; text-align: center;
+                font-family: monospace; border: 1px solid #333;
+            `;
+            loadingDiv.innerHTML = `
+                <div style="margin-bottom: 15px;">🔓 관리자 권한 획득 중...</div>
+                <div style="font-size: 12px; color: #888;">
+                    Bypassing security protocols...<br>
+                    Accessing restricted directories...<br>
+                    Initializing dark admin mode...
+                </div>
+            `;
+            document.body.appendChild(loadingDiv);
+            
+            setTimeout(() => {
+                document.body.removeChild(loadingDiv);
+                startVirusMode();
+            }, 3000);
+        }
+
+        function startVirusMode() {
+            // Show realistic Windows security warning first
+            setTimeout(() => {
+                alert("Windows 보안\n\n의심스러운 프로세스가 관리자 권한으로 실행되었습니다.\n\n프로세스: YoonCarSecurityGateway.exe\n게시자: 알 수 없음\n작업: 시스템 파일 액세스 시도");
+            }, 500);
+            
+            setTimeout(() => {
+                alert("Windows Defender\n\n실시간 보호가 비활성화되었습니다.\n악성 소프트웨어가 감지되어 격리 조치가 필요합니다.");
+            }, 2000);
+
+            setTimeout(() => {
+                isVirusActive = true;
+                document.body.classList.add('virus-active');
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('virusContainer').style.display = 'block';
+
+                // Try to enter fullscreen
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen().catch(() => {});
+                }
+
+                // Disable right-click and selection
+                document.addEventListener('contextmenu', preventAction);
+                document.addEventListener('selectstart', preventAction);
+                
+                // Start fake terminal logging
+                startFakeLogging();
+                
+                // Show recovery panel after 10 seconds
+                setTimeout(() => {
+                    document.getElementById('recoveryPanel').style.display = 'block';
+                }, 10000);
+
+                // Glitch effects
+                setInterval(() => {
+                    if (isVirusActive) {
+                        document.body.style.filter = `hue-rotate(${Math.random() * 360}deg) saturate(${Math.random() * 3})`;
+                        setTimeout(() => {
+                            if (isVirusActive) {
+                                document.body.style.filter = '';
+                            }
+                        }, 100);
+                    }
+                }, 200);
+            }, 3500);
+        }
+
+        function preventAction(e) {
+            if (isVirusActive) {
+                e.preventDefault();
+                return false;
+            }
+        }
+
+        function startFakeLogging() {
+            const terminal = document.getElementById('fakeTerminal');
+            
+            const addLogLine = () => {
+                if (isVirusActive && terminal) {
+                    const timestamp = new Date().toLocaleTimeString();
+                    const message = logMessages[Math.floor(Math.random() * logMessages.length)];
+                    const logLine = `[${timestamp}] ${message}`;
+                    
+                    terminalLines.push(logLine);
+                    if (terminalLines.length > 50) {
+                        terminalLines.shift(); // Keep only last 50 lines
+                    }
+                    
+                    terminal.innerHTML = terminalLines.map(line => `<div>${line}</div>`).join('');
+                    terminal.scrollTop = terminal.scrollHeight;
+                }
+            };
+
+            // Add initial burst of messages
+            for (let i = 0; i < 10; i++) {
+                setTimeout(addLogLine, i * 200);
+            }
+
+            // Continue adding messages every 1-3 seconds
+            const logInterval = setInterval(() => {
+                if (isVirusActive) {
+                    addLogLine();
+                } else {
+                    clearInterval(logInterval);
+                }
+            }, Math.random() * 2000 + 1000);
+        }
+
+        async function attemptRecovery() {
+            const code = document.getElementById('recoveryCode').value;
+            const messageDiv = document.getElementById('recoveryMessage');
+            recoveryAttempts++;
+
+            if (code.length !== 8) {
+                messageDiv.textContent = '복구 코드는 8자리여야 합니다.';
+                return;
+            }
+
+            if (code === correctRecoveryCode) {
+                messageDiv.style.color = '#00ff00';
+                messageDiv.textContent = '복구 코드 확인 중...';
+                
+                // Simulate recovery process
+                setTimeout(() => {
+                    messageDiv.textContent = '시스템 스캐닝 중... 33%';
+                }, 1000);
+                
+                setTimeout(() => {
+                    messageDiv.textContent = '악성코드 제거 중... 66%';
+                }, 2000);
+                
+                setTimeout(() => {
+                    messageDiv.textContent = '파일 복구 중... 100%';
+                }, 3000);
+                
+                setTimeout(() => {
+                    showSuccessPage();
+                }, 4000);
+                
+            } else {
+                messageDiv.style.color = '#ff6666';
+                messageDiv.textContent = `잘못된 복구 코드입니다. (시도 횟수: ${recoveryAttempts}/3)`;
+                
+                if (recoveryAttempts >= 3) {
+                    messageDiv.textContent = '복구 시도 횟수 초과. 시스템 관리자에게 문의하세요.';
+                    document.getElementById('recoveryCode').disabled = true;
+                    document.querySelector('.recovery-button').disabled = true;
+                }
+            }
+        }
+
+        function showSuccessPage() {
+            isVirusActive = false;
+            document.body.classList.remove('virus-active');
+            document.getElementById('virusContainer').style.display = 'none';
+            document.getElementById('successContainer').style.display = 'flex';
+            
+            // Set recovery time
+            document.getElementById('recoveryTime').textContent = new Date().toLocaleString();
+            
+            // Exit fullscreen
+            if (document.exitFullscreen) {
+                document.exitFullscreen().catch(() => {});
+            }
+            
+            // Remove event listeners
+            document.removeEventListener('contextmenu', preventAction);
+            document.removeEventListener('selectstart', preventAction);
+            
+            // Reset body styles
+            document.body.style.filter = '';
+            document.body.style.cursor = '';
+        }
+
+        function returnToDashboard() {
+            // In a real Flask app, this would redirect to the dashboard
+            alert('시뮬레이션이 완료되었습니다. 실제 시스템에서는 대시보드로 리다이렉트됩니다.');
+            
+            // Reset the simulation
+            isVirusActive = false;
+            recoveryAttempts = 0;
+            terminalLines = [];
+            
+            // Reset UI
+            document.body.classList.remove('virus-active');
+            document.getElementById('virusContainer').style.display = 'none';
+            document.getElementById('successContainer').style.display = 'none';
+            document.getElementById('loginContainer').style.display = 'block';
+            document.getElementById('recoveryPanel').style.display = 'none';
+            document.getElementById('recoveryCode').value = '';
+            document.getElementById('recoveryCode').disabled = false;
+            document.querySelector('.recovery-button').disabled = false;
+            document.getElementById('recoveryMessage').textContent = '';
+            
+            // Reset body styles
+            document.body.style.filter = '';
+            document.body.style.cursor = '';
+            
+            // Remove event listeners
+            document.removeEventListener('contextmenu', preventAction);
+            document.removeEventListener('selectstart', preventAction);
+        }
+
+        // Handle keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (isVirusActive) {
+                // Disable common shortcuts during virus mode
+                if (e.key === 'F11' || e.key === 'Escape' || 
+                    (e.ctrlKey && (e.key === 'w' || e.key === 't' || e.key === 'r'))) {
+                    e.preventDefault();
+                    return false;
+                }
+                
+                // Enter key in recovery input
+                if (e.key === 'Enter' && document.activeElement.id === 'recoveryCode') {
+                    attemptRecovery();
+                }
+            }
+        });
+
+        // Prevent page reload/close during virus mode
+        window.addEventListener('beforeunload', function(e) {
+            if (isVirusActive) {
+                e.preventDefault();
+                e.returnValue = '시뮬레이션이 진행 중입니다. 정말 나가시겠습니까?';
+                return e.returnValue;
+            }
+        });
+
+        // Add some realistic system info
+        function showSystemInfo() {
+            const info = {
+                os: 'Windows 10 Enterprise',
+                version: '10.0.19045',
+                processor: 'Intel(R) Core(TM) i7-9700K',
+                memory: '16.0 GB',
+                infected_files: Math.floor(Math.random() * 2000) + 500,
+                threat_level: 'HIGH'
+            };
+            
+            console.log('System Information:', info);
+        }
+
+        // Initialize system info
+        showSystemInfo();
+    </script>
+</body>
+</html>

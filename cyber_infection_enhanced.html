@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Recovery Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            user-select: none;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .warning-icon {
+            font-size: 80px;
+            color: #ff6b35;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .subtitle {
+            font-size: 18px;
+            margin-bottom: 30px;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        .recovery-box {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .recovery-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            background: rgba(0,0,0,0.3);
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 8px;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 20px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .recovery-input:focus {
+            border-color: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+        }
+
+        .recovery-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .submit-button {
+            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            color: #000;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+        }
+
+        .warning-text {
+            color: #ff6b35;
+            font-size: 14px;
+            margin-top: 20px;
+            font-style: italic;
+        }
+
+        /* 기존 스타일들 */
+        .success-message {
+            color: #ffffff;
+            font-size: 18px;
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .restart-button {
+            margin-top: 30px;
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        /* Critical System Failure Styles */
+        .system-failure {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 99999;
+            overflow: hidden;
+        }
+
+        .boot-error-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .boot-text {
+            white-space: pre-line;
+            line-height: 1.2;
+            animation: typewriter 0.05s steps(1) infinite;
+        }
+
+        @keyframes typewriter {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .critical-error {
+            color: #ff0000;
+            font-weight: bold;
+            text-shadow: 0 0 5px #ff0000;
+            animation: criticalFlash 0.2s infinite;
+        }
+
+        @keyframes criticalFlash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .pixel-corruption {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4"><rect width="2" height="2" fill="%23ff0000"/><rect x="2" y="2" width="2" height="2" fill="%2300ff00"/></svg>');
+            opacity: 0;
+            animation: pixelGlitch 0.1s infinite;
+            mix-blend-mode: difference;
+        }
+
+        @keyframes pixelGlitch {
+            0% { opacity: 0; transform: translate(0, 0); }
+            25% { opacity: 0.8; transform: translate(-2px, 1px); }
+            50% { opacity: 0.4; transform: translate(1px, -2px); }
+            75% { opacity: 0.9; transform: translate(-1px, 2px); }
+            100% { opacity: 0; transform: translate(2px, -1px); }
+        }
+
+        .screen-distortion {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 0, 0, 0.3) 50%, 
+                transparent 100%);
+            animation: verticalLines 0.08s linear infinite;
+        }
+
+        @keyframes verticalLines {
+            0% { transform: translateX(-100%); filter: hue-rotate(0deg); }
+            100% { transform: translateX(100%); filter: hue-rotate(360deg); }
+        }
+
+        .data-destruction {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            border: 3px solid #ff0000;
+            padding: 30px;
+            text-align: center;
+            color: #ff0000;
+            font-family: 'Courier New', monospace;
+            animation: destructionPulse 0.3s infinite;
+        }
+
+        @keyframes destructionPulse {
+            0%, 100% { 
+                transform: translate(-50%, -50%) scale(1); 
+                box-shadow: 0 0 20px #ff0000; 
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.05); 
+                box-shadow: 0 0 40px #ff0000; 
+            }
+        }
+
+        .file-deletion-log {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: calc(100% - 20px);
+            height: 200px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #ff6666;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            padding: 10px;
+            overflow-y: auto;
+            border: 1px solid #ff0000;
+        }
+
+        .bluescreen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #0078d4;
+            color: white;
+            z-index: 999999;
+            font-family: 'Segoe UI', sans-serif;
+            padding: 40px;
+            overflow: hidden;
+        }
+
+        .bsod-face {
+            font-size: 120px;
+            margin-bottom: 30px;
+        }
+
+        .bsod-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .bsod-message {
+            font-size: 16px;
+            line-height: 1.4;
+            margin-bottom: 30px;
+        }
+
+        .bsod-progress {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .static-noise {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><defs><filter id="noise"><feTurbulence baseFrequency="0.9"/></filter></defs><rect width="100%" height="100%" filter="url(%23noise)"/></svg>');
+            animation: staticMove 0.1s infinite;
+        }
+
+        @keyframes staticMove {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(-5px, 5px); }
+            50% { transform: translate(5px, -5px); }
+            75% { transform: translate(-3px, -3px); }
+            100% { transform: translate(3px, 3px); }
+        }
+
+        /* 추가 강화된 효과들 */
+        .disk-corruption {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #ff0000;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            padding: 10px;
+            overflow-y: auto;
+            border: 1px solid #ff0000;
+        }
+
+        .system-shutdown {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .mbr-error {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 0, 0, 0.9);
+            color: #ffffff;
+            padding: 20px;
+            border: 2px solid #ffffff;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            text-align: center;
+            animation: errorBlink 0.5s infinite;
+        }
+
+        @keyframes errorBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(255, 255, 255, 0.03) 2px,
+                rgba(255, 255, 255, 0.03) 4px
+            );
+            animation: scanlineMove 0.1s linear infinite;
+        }
+
+        @keyframes scanlineMove {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(4px); }
+        }
+
+        .audio-hidden {
+            position: absolute;
+            left: -9999px;
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="mainContainer">
+        <div class="warning-icon">⚠️</div>
+        <h1 class="title">시스템 복구 필요</h1>
+        <p class="subtitle">악성코드 감염이 감지되었습니다</p>
+        
+        <div class="recovery-box">
+            <p style="margin-bottom: 20px;">시스템을 복구하려면 복구 코드를 입력하세요:</p>
+            <input type="text" class="recovery-input" id="recoveryInput" placeholder="복구 코드 입력">
+            <button class="submit-button" onclick="attemptRecovery()">복구 실행</button>
+            <p class="warning-text">⚠️ 잘못된 코드 입력 시 시스템이 손상될 수 있습니다</p>
+        </div>
+    </div>
+
+    <!-- 시스템 파괴 화면 -->
+    <div class="system-failure" id="systemFailure">
+        <div class="pixel-corruption"></div>
+        <div class="screen-distortion"></div>
+        <div class="scanlines"></div>
+        <div class="static-noise"></div>
+        
+        <div class="boot-error-screen">
+            <div class="boot-text" id="bootText"></div>
+        </div>
+        
+        <div class="file-deletion-log" id="fileDeletionLog"></div>
+        <div class="disk-corruption" id="diskCorruption"></div>
+        
+        <div class="mbr-error" id="mbrError" style="display: none;">
+            <div class="critical-error">CRITICAL ERROR</div>
+            <div>Master Boot Record (MBR) CORRUPTED</div>
+            <div>System Volume Information DESTROYED</div>
+            <div>Boot sector unreadable</div>
+        </div>
+
+        <div class="data-destruction" id="dataDestruction" style="display: none;">
+            <div class="critical-error">SYSTEM DESTRUCTION IN PROGRESS</div>
+            <div style="margin: 20px 0;">ALL DATA BEING DELETED</div>
+            <div id="destructionCounter">100%</div>
+        </div>
+    </div>
+
+    <!-- 블루스크린 -->
+    <div class="bluescreen" id="bluescreen">
+        <div class="bsod-face">:(</div>
+        <div class="bsod-title">PC에 문제가 발생해 다시 시작해야 합니다.</div>
+        <div class="bsod-message">
+            오류 정보를 수집하고 있으며 자동으로 다시 시작됩니다.<br><br>
+            문제가 지속되면 다음 정보를 온라인에서 검색할 수 있습니다:<br>
+            CRITICAL_PROCESS_DIED
+        </div>
+        <div class="bsod-progress" id="bsodProgress">0% 완료</div>
+        <div style="margin-top: 40px; font-size: 14px; opacity: 0.8;">
+            자세한 내용은 https://www.windows.com/stopcode를 참조하세요<br>
+            지원 담당자에게 문의할 때는 다음 정보를 제공하세요:<br>
+            중지 코드: CRITICAL_PROCESS_DIED
+        </div>
+    </div>
+
+    <!-- 숨겨진 오디오 요소들 -->
+    <div class="audio-hidden">
+        <audio id="diskErrorSound" preload="auto">
+            <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbL1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGhYqFbF1fdJOGh
